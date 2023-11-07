@@ -32,12 +32,16 @@ class Base extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color2,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            print("cool shit, thank you wery much, really appreciate that");
-          },
-          icon: Icon(Icons.menu),
-          iconSize: 40,
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              onPressed: () {
+               Scaffold.of(context).openDrawer();
+              },
+              icon: Icon(Icons.menu),
+              iconSize: 40,
+            );
+          }
         ),
         backgroundColor: Color2,
         elevation: 10,
@@ -52,24 +56,68 @@ class Base extends StatelessWidget {
             onPressed: () => showDialog<String>(
               context: context,
               builder: (BuildContext context) => AlertDialog(
-                title: const Text("Statistics for"),
-                content: RadioChooseDate(),
-                backgroundColor: Color4,
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'Cancel'),
-                    child: const Text('Cancel'),
+                  title: const Text("Statistics for"),
+                  content: SizedBox(
+                    width: 300,
+                    height: 200,
+                    child: RadioChooseDate()
                     ),
-                    TextButton (
-                      onPressed: () => Navigator.pop(context, 'Ok'),
-                      child: const Text("Ok"),
-                    )
-                ],
+                  backgroundColor: Color4,
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      child: const Text('Cancel'),
+                      ),
+                      TextButton (
+                        onPressed: () => Navigator.pop(context, 'Ok'),
+                        child: const Text("Ok"),
+                      )
+                  ],
+                ),
               ),
-            ),
             icon: Icon(Icons.calendar_month)
             )
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color2,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Color4,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('Messages'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Profile'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            // Add more items here
+          ],
+        ),
       ),
 
       body: Column(
@@ -134,13 +182,7 @@ class Base extends StatelessWidget {
           ),
           SizedBox(height: 20,),
 
-          Container(
-            height: 140,
-            width: 400,
-            decoration: BoxDecoration(
-              color: Color2,
-            ),
-          ),
+          ScrollIncome(),
 
 
           SizedBox(height: 20,),
@@ -202,15 +244,8 @@ class Base extends StatelessWidget {
             ],
           ),
           SizedBox(height: 20,),
-
-          Container(
-            height: 140,
-            width: 400,
-            decoration: BoxDecoration(
-              color: Color2,
-            ),
-          ),
-
+          
+          ScrollExpenses(),
 
           SizedBox(height: 20,),
 
@@ -296,6 +331,79 @@ class _RadioChooseDateState extends State<RadioChooseDate> {
   }
 }
 
+class ScrollIncome extends StatefulWidget {
+  const ScrollIncome({super.key});
+
+  @override
+  State<ScrollIncome> createState() => _ScrollIncomeState();
+}
+
+class _ScrollIncomeState extends State<ScrollIncome> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 140,
+      width: 360,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverFixedExtentList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 100,
+                    alignment:  Alignment.center,
+                    color: Color1,
+                    child: Text("List item $index"),
+                  ),
+                );
+              }
+            ),
+            itemExtent: 50.0,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class ScrollExpenses extends StatefulWidget {
+  const ScrollExpenses({super.key});
+
+  @override
+  State<ScrollExpenses> createState() => _ScrollExpensesState();
+}
+
+class _ScrollExpensesState extends State<ScrollExpenses> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 140,
+      width: 360,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverFixedExtentList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 100,
+                    alignment:  Alignment.center,
+                    color: Color3,
+                    child: Text("List item $index"),
+                  ),
+                );
+              }
+            ),
+            itemExtent: 50.0,
+            ),
+        ],
+      ),
+    );
+  }
+}
 // enum Page{General, Income, Expenses}
 
 // class ChoosePage extends StatefulWidget {
