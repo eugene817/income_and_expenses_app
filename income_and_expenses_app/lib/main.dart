@@ -59,7 +59,7 @@ class Base extends StatelessWidget {
                   title: const Text("Statistics for"),
                   content: SizedBox(
                     width: 300,
-                    height: 200,
+                    height: 300,
                     child: RadioChooseDate()
                     ),
                   backgroundColor: Color4,
@@ -258,7 +258,7 @@ class Base extends StatelessWidget {
   }
 }
 
-enum DatePick {Day, Month, Year, Week}
+enum DatePick {Day, Month, Year, Week, Custom}
 
 class RadioChooseDate extends StatefulWidget {
   const RadioChooseDate({
@@ -317,6 +317,19 @@ class _RadioChooseDateState extends State<RadioChooseDate> {
           title: const Text("Year"),
           leading: Radio<DatePick>(
             value: DatePick.Year,
+            groupValue: _date,
+            onChanged: (DatePick? value) {
+              setState(() {
+              _date = value;
+          });
+        }
+        
+      ),
+    ),
+    ListTile(
+          title: const Text("Custom"),
+          leading: Radio<DatePick>(
+            value: DatePick.Custom,
             groupValue: _date,
             onChanged: (DatePick? value) {
               setState(() {
