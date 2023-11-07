@@ -30,7 +30,7 @@ class Base extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color4,
+      backgroundColor: Color2,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -39,7 +39,7 @@ class Base extends StatelessWidget {
           icon: Icon(Icons.menu),
           iconSize: 40,
         ),
-        backgroundColor: Color5,
+        backgroundColor: Color2,
         elevation: 10,
         title: const Text(
           "Incomes and expenses",
@@ -77,7 +77,7 @@ class Base extends StatelessWidget {
           SizedBox(height: 20,),
           Center(
             child: Text(
-              "Income: ",
+              "Income",
               style: TextStyle(
                 color: Color5,
                 fontSize: 40,
@@ -97,7 +97,7 @@ class Base extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [Color2, Color1]
+                    colors: [Color1, Color2]
                     )
                 ),
                 child: Padding(
@@ -127,11 +127,7 @@ class Base extends StatelessWidget {
                   },
                   icon: Icon(Icons.add),
                   iconSize: 30,
-                   hoverColor: Color1,
-                  disabledColor: Color1,
-                  focusColor: Color1,
-                  highlightColor: Color1,
-                  splashColor: Color1,
+                  hoverColor: Color5,
                 ),
               )
             ],
@@ -151,7 +147,7 @@ class Base extends StatelessWidget {
 
           Center(
             child: Text(
-              "Expenses: ",
+              "Expenses",
               style: TextStyle(
                 color: Color3,
                 fontSize: 40,
@@ -200,11 +196,7 @@ class Base extends StatelessWidget {
                   onPressed: () {},
                   icon: Icon(Icons.add),
                   iconSize: 30,
-                  hoverColor: Color3,
-                  disabledColor: Color3,
-                  focusColor: Color3,
-                  highlightColor: Color3,
-                  splashColor: Color3,
+                  hoverColor: Color4,
                 ),
               )
             ],
@@ -231,7 +223,7 @@ class Base extends StatelessWidget {
   }
 }
 
-enum DatePick {Day, Month, Year}
+enum DatePick {Day, Month, Year, Week}
 
 class RadioChooseDate extends StatefulWidget {
   const RadioChooseDate({
@@ -260,6 +252,19 @@ class _RadioChooseDateState extends State<RadioChooseDate> {
             },
           ),
         ),
+         ListTile(
+          title: const Text("Week"),
+          leading: Radio<DatePick>(
+            value: DatePick.Week,
+            groupValue: _date,
+            onChanged: (DatePick? value) {
+              setState(() {
+              _date = value;
+          });
+        }
+        
+      ),
+    ),
         ListTile(
           title: const Text("Month"),
           leading: Radio<DatePick>(
