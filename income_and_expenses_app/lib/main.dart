@@ -52,11 +52,8 @@ class Base extends StatelessWidget {
             onPressed: () => showDialog<String>(
               context: context,
               builder: (BuildContext context) => AlertDialog(
-                title: const Text("Chose data"),
-                content: TextButton(
-                  onPressed: () {}, 
-                  child: const Text("data")
-                  ),
+                title: const Text("Statistics for"),
+                content: RadioChooseDate(),
                 backgroundColor: Color4,
                 actions: <Widget>[
                   TextButton(
@@ -230,6 +227,66 @@ class Base extends StatelessWidget {
       
 
       
+    );
+  }
+}
+
+enum DatePick {Day, Month, Year}
+
+class RadioChooseDate extends StatefulWidget {
+  const RadioChooseDate({
+    super.key,
+  });
+
+  @override
+  State<RadioChooseDate> createState() => _RadioChooseDateState();
+}
+
+class _RadioChooseDateState extends State<RadioChooseDate> {
+  DatePick? _date = DatePick.Day;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          title: const Text("Day"),
+          leading: Radio<DatePick>(
+            value: DatePick.Day,
+            groupValue: _date,
+            onChanged: (DatePick? value) {
+              setState(() {
+                _date = value;
+              });
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text("Month"),
+          leading: Radio<DatePick>(
+            value: DatePick.Month,
+            groupValue: _date,
+            onChanged: (DatePick? value) {
+              setState(() {
+              _date = value;
+          });
+        }
+        
+      ),
+    ),
+    ListTile(
+          title: const Text("Year"),
+          leading: Radio<DatePick>(
+            value: DatePick.Year,
+            groupValue: _date,
+            onChanged: (DatePick? value) {
+              setState(() {
+              _date = value;
+          });
+        }
+        
+      ),
+    ),
+      ],
     );
   }
 }
