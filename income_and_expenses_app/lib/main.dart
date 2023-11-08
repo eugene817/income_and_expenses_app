@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 //TODO : 
-// 1.сделать страницу выезжающую справа на кнопку appbar - lead
 // 2.добавить выезжающие странички на кнопки: 1) справав appbara 2) income add 3) expense add
 // подключить базу данных и рвать жопу
 
@@ -59,7 +58,7 @@ class Base extends StatelessWidget {
                   title: const Text("Statistics for"),
                   content: SizedBox(
                     width: 300,
-                    height: 300,
+                    height: 240,
                     child: RadioChooseDate()
                     ),
                   backgroundColor: Color4,
@@ -96,8 +95,8 @@ class Base extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.message),
-              title: Text('Messages'),
+              leading: Icon(Icons.auto_graph),
+              title: Text('Stats'),
               onTap: () {
                 // Update the state of the app
                 // ...
@@ -106,8 +105,8 @@ class Base extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Profile'),
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
               onTap: () {
                 // Update the state of the app
                 // ...
