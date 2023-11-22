@@ -1,15 +1,39 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:income_and_expenses_app/homescreen.dart';
+import 'package:income_and_expenses_app/registrationScreen.dart';
 
 class loginscreen extends StatelessWidget {
-  const loginscreen({super.key});
+  loginscreen({Key? key}) : super(key: key);
+
+   final TextEditingController loginController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  // Функция для аутентификации пользователя
+  Future<void> authenticateUser(BuildContext context) async {
+    // Получаем введенные данные
+    String login = loginController.text;
+    String password = passwordController.text;
+    print(login);
+    print(password);
+    // Здесь ваш код для валидации и проверки данных с базой данных
+
+    // Если данные верны, перенаправляем пользователя
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const homescreen()),
+    );
+
+    // Иначе показываем сообщение об ошибке
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color2,
+      appBar: AppBar(
+        title: Text("Login"),
+        backgroundColor: Color2,
+      ),
+      backgroundColor: Color4,
       body: Column(
         children: [
           SizedBox(height: 40,),
@@ -18,7 +42,7 @@ class loginscreen extends StatelessWidget {
               "Welcome back",
               style: TextStyle(
                 fontSize: 30,
-                color: Color4,
+                color: Color2,
               ),
               )
             ),
@@ -27,13 +51,14 @@ class loginscreen extends StatelessWidget {
               "login:",
               style: TextStyle(
                 fontSize: 30,
-                color: Color4,
+                color: Color2,
               ),
               ),
               SizedBox(height: 20,),
               SizedBox(
                 width: 300,
                 child: TextField(
+                  controller: loginController,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Color4,
@@ -49,13 +74,14 @@ class loginscreen extends StatelessWidget {
               "Password:",
               style: TextStyle(
                 fontSize: 30,
-                color: Color4,
+                color: Color2,
               ),
               ),
               SizedBox(height: 20,),
               SizedBox(
                 width: 300,
                 child: TextField(
+                  controller: passwordController,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Color4,
@@ -67,41 +93,52 @@ class loginscreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20,),
-              Row(
-                children: [
-                  SizedBox(width: 100,),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color3,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: TextButton(
-                      onPressed: () => {}, 
-                      child: const Text(
-                        "Register",
-                        style: TextStyle(
-                          color: Color4,
-                        ),
-                        ),
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: 300,
+                  minWidth: 300
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color3,
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                  ),
-                  SizedBox(width: 30,),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color5,
-                      borderRadius: BorderRadius.circular(15),
+                      child: TextButton(
+                        onPressed: () => {
+                          Navigator.push(
+                           context,
+                            MaterialPageRoute(builder: (context) => const registrationScreen()),
+                          ),
+                        }, 
+                        child: const Text(
+                          "Register",
+                          style: TextStyle(
+                            color: Color4,
+                          ),
+                          ),
+                        ),
                     ),
-                    child: TextButton(
-                      onPressed: () => {}, 
-                      child: const Text(
-                        "Submit",
-                        style: TextStyle(
-                          color: Color4,
-                        ),
-                        ),
+                    SizedBox(width: 158,),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color5,
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                  ),
-                ],
+                      child: TextButton(
+                        onPressed: () => authenticateUser(context),
+                        child: const Text(
+                          "Continue",
+                          style: TextStyle(
+                            color: Color4,
+                          ),
+                          ),
+                        ),
+                    ),
+                  ],
+                ),
               )
         ],
       ),

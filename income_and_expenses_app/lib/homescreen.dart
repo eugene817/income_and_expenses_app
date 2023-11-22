@@ -1,8 +1,11 @@
+
 import 'package:flutter/material.dart';
+import 'package:income_and_expenses_app/changeAccounts.dart';
+import 'package:income_and_expenses_app/loginscreen.dart';
+import 'package:income_and_expenses_app/settingsScreen.dart';
+import 'package:intl/intl.dart';
 
 //variables for income and expenses
-var income = "13435";
-var expenses = "13215";
 
 // Colorscheme
 const Color1 = Color.fromARGB(255, 140, 255, 152);
@@ -11,45 +14,164 @@ const Color3 = Color.fromARGB(255, 209, 102, 102);
 const Color4 = Color.fromARGB(255, 250, 232, 235);
 const Color5 = Color.fromARGB(255, 94, 128, 127);
 
-class homescreen extends StatelessWidget {
+class homescreen extends StatefulWidget {
   const homescreen({super.key});
 
   @override
+  State<homescreen> createState() => _homescreenState();
+}
+
+
+class Operation {
+  String type; // 'Income' or 'Expense'
+  String amount;
+  DateTime date;
+
+  Operation({required this.type, required this.amount, required this.date});
+}
+
+String currency = "zl";
+
+class _homescreenState extends State<homescreen> {
+
+  String income = "0";
+  String expenses = "0";
+  List<Operation> operations = [];
+  List<Operation> get incomeOperations => operations.where((op) => op.type == 'Income').toList();
+  List<Operation> get expenseOperations => operations.where((op) => op.type == 'Expense').toList();
+
+  
+
+  void updateAmount(bool isIncome, String amount) {
+    setState(() {
+      if (isIncome) {
+        income = (double.parse(income) + double.parse(amount)).toString();
+        operations.add(Operation(type: 'Income', amount: amount, date: DateTime.now()));
+      } else {
+        expenses = (double.parse(expenses) + double.parse(amount)).toString();
+        operations.add(Operation(type: 'Expense', amount: amount, date: DateTime.now()));
+      }
+    });
+  }
+
+    Future<void> _showAddDialog(BuildContext context, bool isIncome) async {
+    TextEditingController _textEditingController = TextEditingController();
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color2,
+          title: Text(
+            isIncome ? 'Add Income' : 'Add Expense',
+            style: TextStyle(
+              color: Color4,
+            ),
+            ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: _textEditingController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: isIncome ? Color1 : Color3,
+                    hintText: "format 134.56",
+                    hintStyle: TextStyle(
+                      color: Color2,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Color3, width: 1),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: TextButton(
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color3,
+                  ),
+                  ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Color1, width: 1),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: TextButton(
+                child: Text(
+                  'Add',
+                  style: TextStyle(
+                    color: Color1,
+                  ),
+                  ),
+                onPressed: () {
+                  updateAmount(isIncome, _textEditingController.text);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color2,
+    var screenSize = MediaQuery.of(context).size;
+    return DefaultTabController (
+    length: 3,
+    child: Scaffold(
+
       appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              onPressed: () {
-               Scaffold.of(context).openDrawer();
-              },
-              icon: Icon(Icons.menu),
-              iconSize: 40,
-            );
-          }
-        ),
-        backgroundColor: Color2,
-        elevation: 10,
-        title: const Text(
-          "Incomes and expenses",
-          style: TextStyle(
-            color: Color4,
-          ),
-          ),
-        actions: [
-          IconButton(
-            onPressed: () => Showstatisticschose(context),
-            icon: Icon(Icons.calendar_month)
-            )
-        ],
+      leading: Builder(
+        builder: (BuildContext context) {
+          return IconButton(
+            onPressed: () {
+             Scaffold.of(context).openDrawer();
+            },
+            icon: Icon(Icons.menu),
+            iconSize: 40,
+          );
+        }
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
+      backgroundColor: Color2,
+      elevation: 10,
+      title: const Text(
+        "Incomes and expenses",
+        style: TextStyle(
+          color: Color4,
+        ),
+        ),
+      actions: [
+        IconButton(
+          onPressed: () => Showstatisticschose(context),
+          icon: Icon(Icons.calendar_month)
+          )
+      ],
+    ),
+
+    drawer: Drawer(
+      backgroundColor: Color4,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+              DrawerHeader(
               decoration: BoxDecoration(
                 color: Color2,
               ),
@@ -61,176 +183,337 @@ class homescreen extends StatelessWidget {
                 ),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.auto_graph),
-              title: Text('Stats'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            // Add more items here
-          ],
-        ),
-      ),
-
-      body: Column(
-        children: [
-          SizedBox(height: 20,),
-          Center(
-            child: Text(
-              "Income",
+          ListTile(
+            leading: Icon(Icons.auto_graph),
+            title: Text(
+              'Change user',
               style: TextStyle(
-                color: Color5,
-                fontSize: 40,
+                fontSize: 20,
               ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                  minWidth: 250,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Color1, Color2]
-                    )
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(
-                      income + "zl",
-                      style: TextStyle(
-                        color: Color4,
-                        fontSize: 40
-                      ),
-                      
-                      )
-                    ),
-                ),
               ),
-              SizedBox(width: 20,),
-              Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(
-                  color: Color1,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                  },
-                  icon: Icon(Icons.add),
-                  iconSize: 30,
-                  hoverColor: Color5,
-                ),
-              )
-            ],
-          ),
-          SizedBox(height: 20,),
-
-          ScrollIncome(),
-
-
-          SizedBox(height: 20,),
-
-          Center(
-            child: Text(
-              "Expenses",
+            onTap: () {
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => loginscreen())
+              );
+          }),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text(
+              'Settings',
               style: TextStyle(
-                color: Color3,
-                fontSize: 40,
+                fontSize: 20,
               ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                  minWidth: 250,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Color3, Color2]
-                    )
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(
-                      expenses + "zl",
-                      style: TextStyle(
-                        color: Color4,
-                        fontSize: 40
-                      ),
-                      
-                      )
-                    ),
-                ),
               ),
-              SizedBox(width: 20,),
-              Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(
-                  color: Color3,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.add),
-                  iconSize: 30,
-                  hoverColor: Color4,
-                ),
-              )
-            ],
+            onTap: () {
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const settingsScreen())
+              );
+            },
           ),
-          SizedBox(height: 20,),
-          
-          ScrollExpenses(),
-
-          SizedBox(height: 20,),
-
+          ListTile(
+            leading: Icon(Icons.account_balance),
+            title: Text(
+              'Accounts',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+              ),
+            onTap: () {
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const changeAccounts())
+              );
+            },
+          ),
+          // Add more items here
         ],
       ),
-      
+    ),
 
-      
+      body: TabBarView(
+      children: [
+        mainScreen1(context, screenSize),
+        mainScreen2(context, screenSize),
+        mainScreen3(context, screenSize),
+      ]
+    ),
+    bottomNavigationBar: BottomAppBar(
+      child: Container(
+        color: Color2,
+        child: const TabBar(
+                  tabs: [
+                Tab(icon: Icon(Icons.account_box_outlined)),
+                Tab(icon: Icon(Icons.account_balance_outlined)),
+                Tab(icon: Icon(Icons.account_balance_wallet_outlined)),
+                  ],
+        ),
+      )
+    ),
+    )
+    
+    
+    );
+  }
+
+  Scaffold mainScreen1(BuildContext context, Size screenSize) {
+    return Scaffold(
+    backgroundColor: Color2,
+    body: Column(
+      children: [
+        SizedBox(height: screenSize.height / 40,),
+        Text(
+            "Income",
+            style: TextStyle(
+              color: Color5,
+              fontSize: 30,
+            ),
+          ),
+        SizedBox(height: screenSize.height / 100),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              constraints: BoxConstraints(
+                minWidth: screenSize.width - 100,
+                maxWidth: screenSize.width - 100,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color1, Color2]
+                  )
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    income + "zl",
+                    style: TextStyle(
+                      color: Color4,
+                      fontSize: 40
+                    ),
+                    
+                    )
+                  ),
+              ),
+            ),
+            SizedBox(width: 10,),
+            Container(
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                color: Color1,
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: IconButton(
+                onPressed: () => _showAddDialog(context, true),
+                icon: Icon(Icons.add),
+                iconSize: 30,
+                hoverColor: Color5,
+              ),
+            )
+          ],
+        ),
+        SizedBox(height: screenSize.height / 40,),
+
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Color1, width: 2)
+          ),
+          width: screenSize.width,
+          height: screenSize.height / 5,
+          child: incomeOperations.isNotEmpty 
+            ? ListView.builder(
+                itemCount: incomeOperations.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Color2,
+                      border: Border.all(color: Color1, width: 2)
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        "${incomeOperations[index].amount} $currency",
+                        style: TextStyle(
+                          color: Color1,
+                          fontSize: screenSize.height / 20,
+                        ),
+                        ),
+                      subtitle: Text(
+                        DateFormat('yyyy-MM-dd – kk:mm').format(incomeOperations[index].date),
+                        style: TextStyle(
+                          color: Color1,
+                          fontSize: screenSize.height / 25,
+                        ),
+                        ),
+                    ),
+                  );
+                },
+              )
+            : Center(child: Text(
+              "No income operations",
+              style: TextStyle(
+                        color: Color1,
+                        fontSize: screenSize.height / 30,
+                      ),
+              )),
+        ),
+
+        SizedBox(height: screenSize.height / 40,),
+
+        Center(
+          child: Text(
+            "Expenses",
+            style: TextStyle(
+              color: Color3,
+              fontSize: 30,
+            ),
+          ),
+        ),
+        SizedBox(height: screenSize.height / 60),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              constraints: BoxConstraints(
+                minWidth: screenSize.width - 100,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color3, Color2]
+                  )
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    expenses + "zl",
+                    style: TextStyle(
+                      color: Color4,
+                      fontSize: 40
+                    ),
+                    
+                    )
+                  ),
+              ),
+            ),
+            SizedBox(width: 10,),
+            Container(
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                color: Color3,
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: IconButton(
+                onPressed: () => _showAddDialog(context, false),
+                icon: Icon(Icons.add),
+                iconSize: 30,
+                hoverColor: Color4,
+              ),
+            )
+          ],
+        ),
+        SizedBox(height: screenSize.height / 40,),
+        
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Color3, width: 1),
+          ),
+          width: screenSize.width,
+          height: screenSize.height / 5,
+          child: expenseOperations.isNotEmpty
+            ? ListView.builder(
+                itemCount: expenseOperations.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color3, width: 1),
+                      color: Color2,
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        "${expenseOperations[index].amount} $currency",
+                        style: TextStyle(
+                          color: Color3,
+                          fontSize: screenSize.height / 20,
+                        ),
+                        ),
+                      subtitle: Text(
+                        DateFormat('yyyy-MM-dd – kk:mm').format(expenseOperations[index].date),
+                        style: TextStyle(
+                          color: Color3,
+                          fontSize: screenSize.height / 25,
+                        ),
+                        ),
+                    ),
+                  );
+                },
+              )
+            : Center(child: Text(
+              "No expense operations",
+              style: TextStyle(
+                        color: Color3,
+                        fontSize: screenSize.height / 30,
+                      ),
+              )),
+        ),
+
+
+      ],
+    ),
+    
+
+    
+  );
+  }
+
+  Scaffold mainScreen2(BuildContext context, Size screenSize) {
+    return Scaffold(
+      backgroundColor: Color2,
+      body: Center(
+        child: Text(
+          "mainScreen2",
+          style: TextStyle(
+            color: Color4,
+            fontSize: 50
+          ),
+          ),
+      ),
+    );
+  }
+
+  Scaffold mainScreen3(BuildContext context, Size screenSize) {
+    return Scaffold(
+      backgroundColor: Color2,
+      body: Center(
+        child: Text(
+          "mainScreen3",
+          style: TextStyle(
+            color: Color4,
+            fontSize: 50
+          ),
+          ),
+      ),
     );
   }
 
   Future<String?> Showstatisticschose(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
     return showDialog<String>(
             context: context,
             builder: (BuildContext context) => AlertDialog(
+              
                 title: const Text("Statistics for"),
                 content: SizedBox(
-                  width: 300,
-                  height: 240,
+                  width: screenSize.width,
+                  height: screenSize.height - 400,
                   child: RadioChooseDate()
                   ),
                 backgroundColor: Color4,
@@ -335,76 +618,5 @@ class _RadioChooseDateState extends State<RadioChooseDate> {
   }
 }
 
-class ScrollIncome extends StatefulWidget {
-  const ScrollIncome({super.key});
 
-  @override
-  State<ScrollIncome> createState() => _ScrollIncomeState();
-}
 
-class _ScrollIncomeState extends State<ScrollIncome> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 140,
-      width: 360,
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverFixedExtentList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 100,
-                    alignment:  Alignment.center,
-                    color: Color1,
-                    child: Text("List item $index"),
-                  ),
-                );
-              }
-            ),
-            itemExtent: 50.0,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class ScrollExpenses extends StatefulWidget {
-  const ScrollExpenses({super.key});
-
-  @override
-  State<ScrollExpenses> createState() => _ScrollExpensesState();
-}
-
-class _ScrollExpensesState extends State<ScrollExpenses> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 140,
-      width: 360,
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverFixedExtentList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 100,
-                    alignment:  Alignment.center,
-                    color: Color3,
-                    child: Text("List item $index"),
-                  ),
-                );
-              }
-            ),
-            itemExtent: 50.0,
-            ),
-        ],
-      ),
-    );
-  }
-}
