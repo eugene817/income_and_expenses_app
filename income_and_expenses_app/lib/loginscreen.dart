@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:income_and_expenses_app/homescreen.dart';
-import 'package:income_and_expenses_app/registrationScreen.dart';
+import 'package:income_and_expenses_app/database.dart';
+
+var currentUserId;
 
 class loginscreen extends StatelessWidget {
   loginscreen({Key? key}) : super(key: key);
@@ -9,23 +11,96 @@ class loginscreen extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   // Функция для аутентификации пользователя
-  Future<void> authenticateUser(BuildContext context) async {
-    // Получаем введенные данные
+   Future<void> authenticateUser(BuildContext context) async {
     String login = loginController.text;
     String password = passwordController.text;
-    print(login);
-    print(password);
-    // Здесь ваш код для валидации и проверки данных с базой данных
 
-    // Если данные верны, перенаправляем пользователя
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const homescreen()),
+    var user = await DatabaseHelper.instance.getUser(login);
+
+    if (user != null && user.passwordHash == generateHash(password)) {
+      // Если пользователь найден и пароль верный
+      currentUserId = user.id;
+      //print(user.id);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const homescreen()),
+      );
+    } else {
+      // Если данные неверные
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Incorrect login or password'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+   }
+
+   Future<void> registerUser(BuildContext context) async {
+    String login = loginController.text;
+    String password = passwordController.text;
+
+    // Проверяем, существует ли уже пользователь с таким логином
+    var existingUser = await DatabaseHelper.instance.getUser(login);
+    if (existingUser != null) {
+      // Пользователь уже существует
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('User already exists'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+    // Хешируем пароль
+    String passwordHash = generateHash(password);
+
+    // Создаем нового пользователя
+    User newUser = User(name: login, email: login, passwordHash: passwordHash); // Дополните полями, как требуется
+    await DatabaseHelper.instance.createUser(newUser);
+
+    // Показываем сообщение об успешной регистрации
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('User successfully registered'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
-
-    // Иначе показываем сообщение об ошибке
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,12 +182,7 @@ class loginscreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: TextButton(
-                        onPressed: () => {
-                          Navigator.push(
-                           context,
-                            MaterialPageRoute(builder: (context) => const registrationScreen()),
-                          ),
-                        }, 
+                        onPressed: () => registerUser(context), 
                         child: const Text(
                           "Register",
                           style: TextStyle(

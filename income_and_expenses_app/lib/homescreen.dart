@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:income_and_expenses_app/changeAccounts.dart';
-import 'package:income_and_expenses_app/loginscreen.dart';
 import 'package:income_and_expenses_app/settingsScreen.dart';
 import 'package:intl/intl.dart';
+import 'package:income_and_expenses_app/database.dart';
 
 //variables for income and expenses
 
@@ -14,6 +13,13 @@ const Color3 = Color.fromARGB(255, 209, 102, 102);
 const Color4 = Color.fromARGB(255, 250, 232, 235);
 const Color5 = Color.fromARGB(255, 94, 128, 127);
 
+String currency = "zl";
+  String income = "0";
+  String expenses = "0";
+  List<Operation> operations = [];
+  List<Operation> incomeOperations = [];
+  List<Operation> expenseOperations = [];
+
 class homescreen extends StatefulWidget {
   const homescreen({super.key});
 
@@ -22,38 +28,31 @@ class homescreen extends StatefulWidget {
 }
 
 
-class Operation {
-  String type; // 'Income' or 'Expense'
-  String amount;
-  DateTime date;
-
-  Operation({required this.type, required this.amount, required this.date});
-}
-
-String currency = "zl";
 
 class _homescreenState extends State<homescreen> {
 
-  String income = "0";
-  String expenses = "0";
-  List<Operation> operations = [];
-  List<Operation> get incomeOperations => operations.where((op) => op.type == 'Income').toList();
-  List<Operation> get expenseOperations => operations.where((op) => op.type == 'Expense').toList();
+    //load operations from data base // right now without user id
+    Future<void> _loadOperations() async {
+      final operations = await DatabaseHelper.instance.getOperations();
 
-  
+      setState(() {
+      incomeOperations = operations.where((op) => op.description == 'Income').toList();
+      expenseOperations = operations.where((op) => op.description == 'Expense').toList();
+      });
+    }
+    
+    //update total income and expenses from data base // right now without user id
+    Future<void> updateTotals() async {
+      final totalIncome = await DatabaseHelper.instance.getTotalIncome();
+      final totalExpenses = await DatabaseHelper.instance.getTotalExpenses();
 
-  void updateAmount(bool isIncome, String amount) {
-    setState(() {
-      if (isIncome) {
-        income = (double.parse(income) + double.parse(amount)).toString();
-        operations.add(Operation(type: 'Income', amount: amount, date: DateTime.now()));
-      } else {
-        expenses = (double.parse(expenses) + double.parse(amount)).toString();
-        operations.add(Operation(type: 'Expense', amount: amount, date: DateTime.now()));
-      }
-    });
-  }
+      setState(() {
+        income = totalIncome.toString();
+        expenses = totalExpenses.toString();
+      });
+    }
 
+    //show add dialog to add operations //right now without categories
     Future<void> _showAddDialog(BuildContext context, bool isIncome) async {
     TextEditingController _textEditingController = TextEditingController();
     return showDialog<void>(
@@ -76,7 +75,7 @@ class _homescreenState extends State<homescreen> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: isIncome ? Color1 : Color3,
-                    hintText: "format 134.56",
+                    hintText: isIncome ? "income" : "expense",
                     hintStyle: TextStyle(
                       color: Color2,
                     ),
@@ -119,8 +118,22 @@ class _homescreenState extends State<homescreen> {
                     color: Color1,
                   ),
                   ),
-                onPressed: () {
-                  updateAmount(isIncome, _textEditingController.text);
+                onPressed: () async{
+                  // isIncome ? income = (double.parse(income) + double.parse(_textEditingController.text)).toString() :
+                  // expenses = (double.parse(expenses) + double.parse(_textEditingController.text)).toString()
+                  // ;
+                  Operation newOperation = Operation(
+                  description: isIncome ? "Income" : "Expense",
+                  amount: _textEditingController.text,
+                  date: DateTime.now(),
+                  );
+
+                  await DatabaseHelper.instance.addOperation(newOperation);
+
+                  await _loadOperations();
+
+                  await updateTotals();
+
                   Navigator.of(context).pop();
                 },
               ),
@@ -129,132 +142,144 @@ class _homescreenState extends State<homescreen> {
         );
       },
     );
+
+    
+
+  }
+
+  //load operations and totals to a screen
+  @override
+  void initState() {
+    super.initState();
+    _loadOperations(); 
+    updateTotals();
   }
 
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-    return DefaultTabController (
-    length: 3,
-    child: Scaffold(
+    return mainScreen1(context, screenSize);
+    // DefaultTabController (
+    // length: 3,
+    // child: Scaffold(
 
-      appBar: AppBar(
-      leading: Builder(
-        builder: (BuildContext context) {
-          return IconButton(
-            onPressed: () {
-             Scaffold.of(context).openDrawer();
-            },
-            icon: Icon(Icons.menu),
-            iconSize: 40,
-          );
-        }
-      ),
-      backgroundColor: Color2,
-      elevation: 10,
-      title: const Text(
-        "Incomes and expenses",
-        style: TextStyle(
-          color: Color4,
-        ),
-        ),
-      actions: [
-        IconButton(
-          onPressed: () => Showstatisticschose(context),
-          icon: Icon(Icons.calendar_month)
-          )
-      ],
-    ),
+    //   appBar: AppBar(
+    //   leading: Builder(
+    //     builder: (BuildContext context) {
+    //       return IconButton(
+    //         onPressed: () {
+    //          Scaffold.of(context).openDrawer();
+    //         },
+    //         icon: Icon(Icons.menu),
+    //         iconSize: 40,
+    //       );
+    //     }
+    //   ),
+    //   backgroundColor: Color2,
+    //   elevation: 10,
+    //   title: const Text(
+    //     "Incomes and expenses",
+    //     style: TextStyle(
+    //       color: Color4,
+    //     ),
+    //     ),
+    //   actions: [
+    //     IconButton(
+    //       onPressed: () => Showstatisticschose(context),
+    //       icon: Icon(Icons.calendar_month)
+    //       )
+    //   ],
+    // ),
+    // drawer: Drawer(
+    //   backgroundColor: Color4,
+    //   child: ListView(
+    //     padding: EdgeInsets.zero,
+    //     children: [
+    //           DrawerHeader(
+    //           decoration: BoxDecoration(
+    //             color: Color2,
+    //           ),
+    //           child: Text(
+    //             'Menu',
+    //             style: TextStyle(
+    //               color: Color4,
+    //               fontSize: 24,
+    //             ),
+    //           ),
+    //         ),
+    //       ListTile(
+    //         leading: Icon(Icons.auto_graph),
+    //         title: Text(
+    //           'Change user',
+    //           style: TextStyle(
+    //             fontSize: 20,
+    //           ),
+    //           ),
+    //         onTap: () {
+    //           // Navigator.push(context,
+    //           //   MaterialPageRoute(builder: (context) => loginscreen())
+    //           // );
+    //       }),
+    //       ListTile(
+    //         leading: Icon(Icons.settings),
+    //         title: Text(
+    //           'Settings',
+    //           style: TextStyle(
+    //             fontSize: 20,
+    //           ),
+    //           ),
+    //         onTap: () {
+    //           Navigator.push(context,
+    //             MaterialPageRoute(builder: (context) => const settingsScreen())
+    //           );
+    //         },
+    //       ),
+    //       ListTile(
+    //         leading: Icon(Icons.account_balance),
+    //         title: Text(
+    //           'Accounts',
+    //           style: TextStyle(
+    //             fontSize: 20,
+    //           ),
+    //           ),
+    //         onTap: () {
+    //           Navigator.push(context,
+    //             MaterialPageRoute(builder: (context) => const changeAccounts())
+    //           );
+    //         },
+    //       ),
+    //       // Add more items here
+    //     ],
+    //   ),
+    // ),
 
-    drawer: Drawer(
-      backgroundColor: Color4,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-              DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color2,
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Color4,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-          ListTile(
-            leading: Icon(Icons.auto_graph),
-            title: Text(
-              'Change user',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-              ),
-            onTap: () {
-              Navigator.push(context,
-                MaterialPageRoute(builder: (context) => loginscreen())
-              );
-          }),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-              ),
-            onTap: () {
-              Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const settingsScreen())
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.account_balance),
-            title: Text(
-              'Accounts',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-              ),
-            onTap: () {
-              Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const changeAccounts())
-              );
-            },
-          ),
-          // Add more items here
-        ],
-      ),
-    ),
-
-      body: TabBarView(
-      children: [
-        mainScreen1(context, screenSize),
-        mainScreen2(context, screenSize),
-        mainScreen3(context, screenSize),
-      ]
-    ),
-    bottomNavigationBar: BottomAppBar(
-      child: Container(
-        color: Color2,
-        child: const TabBar(
-                  tabs: [
-                Tab(icon: Icon(Icons.account_box_outlined)),
-                Tab(icon: Icon(Icons.account_balance_outlined)),
-                Tab(icon: Icon(Icons.account_balance_wallet_outlined)),
-                  ],
-        ),
-      )
-    ),
-    )
+    //   body: TabBarView(
+    //   children: [
+    //     mainScreen1(context, screenSize),
+    //     mainScreen2(context, screenSize),
+    //     mainScreen3(context, screenSize),
+    //   ]
+    // ),
+    // bottomNavigationBar: BottomAppBar(
+    //   child: Container(
+    //     color: Color2,
+    //     child: const TabBar(
+    //               tabs: [
+    //             Tab(icon: Icon(Icons.account_box_outlined)),
+    //             Tab(icon: Icon(Icons.account_balance_outlined)),
+    //             Tab(icon: Icon(Icons.account_balance_wallet_outlined)),
+    //               ],
+    //     ),
+    //   )
+    // ),
+    // )
     
     
-    );
+    // );
   }
 
   Scaffold mainScreen1(BuildContext context, Size screenSize) {
+    
     return Scaffold(
     backgroundColor: Color2,
     body: Column(
