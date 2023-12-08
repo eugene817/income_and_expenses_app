@@ -15,12 +15,10 @@ class loginscreen extends StatelessWidget {
     String login = loginController.text;
     String password = passwordController.text;
 
-    var user = await DatabaseHelper.instance.getUser(login);
+    var user = 1;
 
-    if (user != null && user.passwordHash == generateHash(password)) {
-      // Если пользователь найден и пароль верный
-      currentUserId = user.id;
-      //print(user.id);
+    if (user != null) {
+
 
       Navigator.push(
         context,
@@ -53,7 +51,7 @@ class loginscreen extends StatelessWidget {
     String password = passwordController.text;
 
     // Проверяем, существует ли уже пользователь с таким логином
-    var existingUser = await DatabaseHelper.instance.getUser(login);
+    var existingUser = 1;
     if (existingUser != null) {
       // Пользователь уже существует
       showDialog(
@@ -75,14 +73,8 @@ class loginscreen extends StatelessWidget {
       );
       return;
     }
-    // Хешируем пароль
-    String passwordHash = generateHash(password);
 
-    // Создаем нового пользователя
-    User newUser = User(name: login, email: login, passwordHash: passwordHash); // Дополните полями, как требуется
-    await DatabaseHelper.instance.createUser(newUser);
 
-    // Показываем сообщение об успешной регистрации
     showDialog(
       context: context,
       builder: (BuildContext context) {

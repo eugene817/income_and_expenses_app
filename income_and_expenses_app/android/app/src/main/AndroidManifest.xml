@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="income_and_expenses_app"
+        android:label="Incomely"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
