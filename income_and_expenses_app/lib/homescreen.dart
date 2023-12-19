@@ -81,23 +81,13 @@ void updateDropListModel(String type) {
       });
     }
     
-    DropListModel dropListModel = DropListModel([
-    OptionItem(id: "1", title: "income1"),
-    OptionItem(id: "2", title: "income2"),
-    OptionItem(id: "3", title: "income3"),
-    OptionItem(id: "4", title: "income4"),
-    OptionItem(id: "5", title: "income5"),
-    OptionItem(id: "6", title: "income6"),
-    OptionItem(id: "7", title: "income7"),
-    OptionItem(id: "8", title: "income8"),
-    OptionItem(id: "9", title: "income9"),
-    OptionItem(id: "10", title: "income10"),
-  ]);
+    DropListModel dropListModel = DropListModel([]);
 
   OptionItem optionItemSelected = OptionItem(title: "Select category");
 
     //show add dialog to add operations //right now without categories
     Future<void> _showAddDialog(BuildContext context, bool isIncome) async {
+    category_to_add = "empty";
     TextEditingController _textEditingController = TextEditingController();
     updateDropListModel(isIncome ? "Income" : "Expense");
     return showDialog<void>(
@@ -210,15 +200,6 @@ void updateDropListModel(String type) {
                   }
 
                   Navigator.of(context).pop();
-
-                  isIncome ? _scrollControllerIncome.animateTo(
-                    _scrollControllerIncome.position.maxScrollExtent, 
-                    duration: Duration(milliseconds: 300), 
-                    curve: Curves.easeOut,
-                  ) : _scrollControllerExpense.animateTo(
-                    _scrollControllerIncome.position.maxScrollExtent, 
-                    duration: Duration(milliseconds: 300), 
-                    curve: Curves.easeOut, );
                 },
               ),
             ),
@@ -346,7 +327,7 @@ void updateDropListModel(String type) {
     var screenSize = MediaQuery.of(context).size;
     return
     DefaultTabController (
-    length: 2,
+    length: 3,
     child: Scaffold(
 
       appBar: AppBar(
@@ -427,6 +408,7 @@ void updateDropListModel(String type) {
 
       body: TabBarView(
       children: [
+        mainScreen3(context, screenSize),
         mainScreen1(context, screenSize),
         mainScreen2(context, screenSize),
       ]
@@ -438,6 +420,7 @@ void updateDropListModel(String type) {
                   tabs: [
                 Tab(icon: Icon(Icons.account_box_outlined)),
                 Tab(icon: Icon(Icons.account_balance_outlined)),
+                Tab(icon: Icon(Icons.account_balance_wallet_outlined)),
                   ],
         ),
       )
@@ -837,18 +820,53 @@ void updateDropListModel(String type) {
   }
 
   Scaffold mainScreen3(BuildContext context, Size screenSize) {
+    var total = double.parse(income) - double.parse(expenses);
     return Scaffold(
       backgroundColor: Color2,
-      body: Center(
-        child: Text(
-          "mainScreen3",
-          style: TextStyle(
-            color: Color4,
-            fontSize: 50
+      body:
+        Center(
+          child: Column(
+            children: [
+              SizedBox(height: screenSize.height / 4,),
+              Text(
+                  "Total",
+                  style: TextStyle(
+                    color: (total > 0) ? Color5 : Color3,
+                    fontSize: 40,
+                  ),
+                ),
+                SizedBox(height: screenSize.height / 40,),
+              Container(
+                constraints: BoxConstraints(
+                  minWidth: screenSize.width - 100,
+                  maxWidth: screenSize.width - 60,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: (total > 0) ? ([Color1, Color2]) : ([Color3, Color2]),
+                    )
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(
+                      "${total} $currency",
+                      style: TextStyle(
+                        color: Color4,
+                        fontSize: 60
+                      ),
+                      
+                      )
+                    ),
+                ),
+              ),
+            ],
           ),
-          ),
-      ),
-    );
+        ),
+      );
   }
 
   Future<String?> Showstatisticschose(BuildContext context) {
